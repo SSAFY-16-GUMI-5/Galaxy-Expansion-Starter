@@ -2,7 +2,7 @@
 
 ## 목표
 
-참가자가 선택한 언어로 `CosmicObject`와 `ObjectPool`을 설계하고, 객체의 확보·반환·재사용을 직접 구현합니다. 결과는 JSONL 프로토콜로 전송되어 공동 WebGL 공간에서 별로 나타납니다.
+Python으로 `CosmicObject`와 `ObjectPool`을 설계하고 객체의 확보·반환·재사용을 직접 구현합니다. 참가자 시나리오가 Runner를 통해 풀을 호출하면, Runner가 실제 객체의 동작을 추적하고 JSONL 이벤트를 전송합니다. 결과는 WebGL 공간에서 별로 나타납니다.
 
 **예상 기간:** 3~5일. AI 사용 가능. 단, 참가자가 핵심 설계를 설명할 수 있어야 합니다.
 
@@ -12,39 +12,36 @@
 2. **Acquire:** 사용 가능한 객체를 재사용하거나 풀 정책에 따라 새 인스턴스/슬롯을 만듭니다.
 3. **Release:** 사용 중인 객체를 반환하고 중복 반환, 잘못된 참조를 방지합니다.
 4. **재초기화:** 재사용할 때 이전 이름/색상/크기/상태가 새 객체로 누출되지 않도록 합니다.
-5. **식별:** 슬롯 ID는 재사용 시 동일해야 하며 새로운 세대는 `generation`을 올립니다.
-6. **JSONL:** `init`을 받은 뒤 `acquire`/`release` 메시지를 출력하고, 필요하면 `ack`/`error`를 처리합니다.
-7. **검증:** 고유 슬롯 확보 → 반환 → 같은 실제 인스턴스/저장 공간 재사용의 성공 여부를 언어별 테스트로 입증합니다.
+5. **시나리오:** `context.acquire(spec)`로 확보하고, 활성 대여의 값을 `context.snapshot(lease)`로 확인하고, `context.release(lease)`로 반환합니다. 반환 후 같은 인스턴스를 다시 확보하는 흐름을 포함합니다.
+6. **연동:** `solution.main`의 `create_pool()`, `scenario(context)`, `snapshot(obj)`를 연결합니다. Runner가 실제 인스턴스에서 슬롯 ID와 세대를 정하고 [프로토콜 v1](PROTOCOL.md)의 입출력을 처리합니다.
+7. **검증:** 확보 → 반환 → 재확보 순서에서 실제 인스턴스가 재사용되는지 Python 단위 테스트로 입증하고, 완성된 시나리오를 공통 검증기로 실행합니다.
 
-## 공개 API 가이드(인터페이스만 제안)
+## Python 풀 인터페이스
 
 ```text
 CosmicObject:
   name, type, color, size
 
 ObjectPool:
-  Acquire(name, type, color, size) -> borrowed object / handle
-  Release(object / handle)
-  ActiveCount() -> number
-  AvailableCount() -> number
-  Capacity() -> number
+  acquire(spec: CosmicSpec) -> CosmicObject
+  release(obj: CosmicObject) -> None
 ```
 
-참가자는 자료구조, 고정/가변 용량, 생성 시점(eager/lazy), 객체 소유권 등을 선택할 수 있습니다. C/C++의 수동 메모리 관리, Rust의 소유권, Java/C#/Python의 참조 및 GC 특성을 고려하십시오.
+참가자는 자료구조, 고정·가변 용량과 객체 생성 시점을 결정합니다. 풀은 실제 객체를 소유하고 시나리오는 한 번의 대여를 가리키는 `lease`를 받습니다. Runner 호출 구조와 실행 방법은 [Python 구현 안내](../solution/README.md)를 참고하세요.
 
 ## 요구 조건
 
-- 반환 전에 접근 가능한 객체를 파괴해 두고 매번 새로 만들면 **객체 풀을 구현한 것이 아닙니다**.
-- 반환된 객체의 참조를 호출자가 계속 사용하는 문제를 어떻게 막을지 설명하십시오.
+- 반환된 객체의 저장 공간을 보관하고 다음 확보에 재사용합니다.
+- 반환 뒤 참조를 계속 사용하는 문제와 풀의 참조 관리 방식을 설명하세요. 시나리오의 대여는 반환되는 즉시 만료됩니다.
 - `type`: `seed`, `star`, `planet` 중 하나(현재 플랫폼은 모두 구체 형태로 렌더링).
 - `color`: 정확한 `#RRGGBB`, `size`: `0.3` 이상 `3.5` 이하, `name`: 1~40자.
-- 새로운 슬롯의 첫 generation은 `1`; 동일 슬롯을 반환 후 다시 Acquire할 때 `2`, `3` 순서로 증가합니다.
-- stdout에 JSON이 아닌 로그를 섞으면 프로토콜을 위반합니다. 진단 로그는 stderr를 사용하십시오.
-- 서버와 브리지는 참가자의 실제 메모리 재사용을 검증할 수 **없습니다**. 언어별 자체 테스트가 반드시 필요합니다.
+- Runner는 처음 본 인스턴스의 세대를 `1`로 기록합니다. 이후 그 인스턴스를 반환하고 다시 확보할 때마다 같은 슬롯의 세대를 `2`, `3` 순서로 올립니다.
+- Runner가 stdout을 사용하므로 참가자 코드의 진단 로그는 stderr로 보냅니다.
+- 공통 검증기는 이벤트에서 슬롯 재사용을 확인합니다. 실제 인스턴스 동일성은 참가자의 단위 테스트로 검증합니다.
 
 ## 권장 테스트
 
-- 하나의 슬롯에서 `Acquire → Release → Acquire` 시 실제 객체/핸들이 재사용되는가?
+- 하나의 슬롯에서 `acquire → release → acquire`를 실행했을 때 두 객체가 `is`로 같은 인스턴스임을 확인할 수 있는가?
 - 다음 Acquire의 속성이 새 값으로 초기화되었는가?
 - 사용 중인 객체를 중복 Acquire하지 않는가?
 - `Release` 중복 호출 또는 잘못된 참조를 어떻게 처리하는가?

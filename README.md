@@ -2,120 +2,77 @@
 
 > SSAFY 16기 구미 5반 · PROJECT 01 · Object Pooling
 
-**원하는 언어로 객체 풀을 설계하고, 재사용한 객체를 별로 표현하는 미니 프로젝트**입니다. 이 저장소에는 정답 코드가 없습니다. 참가자가 AI 코딩 도구를 활용해 **언어별 스타터 프로젝트**를 만든 후 핵심 풀링 로직을 직접 구현합니다.
+객체를 확보하고 반환한 뒤 같은 인스턴스를 재사용하는 Python 프로젝트입니다. 참가자는 `solution/`의 객체 풀과 시나리오를 완성합니다. Runner가 실제 객체의 확보·반환을 추적하고 프로토콜 v1 이벤트를 보내면 WebGL 화면에서 결과를 볼 수 있습니다.
 
-- [공동 WebGL 플랫폼](https://ssafy-16-gumi-5.github.io/Galaxy-Expansion/)
-- [플랫폼 소스](https://github.com/SSAFY-16-GUMI-5/Galaxy-Expansion)
-- [과제 명세](docs/ASSIGNMENT.md) · [프로토콜 v1](docs/PROTOCOL.md) · [AI 개발 절차](docs/AI_WORKFLOW.md) · [언어별 시작 가이드](docs/LANGUAGE_GUIDE.md)
+- [과제 명세](docs/ASSIGNMENT.md) · [Python 구현 안내](solution/README.md) · [AI 개발 절차](docs/AI_WORKFLOW.md)
+- [프로토콜 v1](docs/PROTOCOL.md) · [언어 가이드](docs/LANGUAGE_GUIDE.md)
+- [공동 WebGL 화면](https://ssafy-16-gumi-5.github.io/Galaxy-Expansion/) · [플랫폼 저장소](https://github.com/SSAFY-16-GUMI-5/Galaxy-Expansion)
 
 ## 1. 시작하기
 
-1. 이 저장소에서 **Use this template → Create a new repository**를 선택합니다. `Fork`가 아니라 자신의 독립적인 저장소를 만듭니다.
-2. 본인 저장소를 Clone하고 VS Code / IDE / AI 코딩 도구로 엽니다.
-3. 사용할 언어(C, C++, C#, Java, Python, Rust, Go, JavaScript 등)를 결정합니다.
-4. 아래 프롬프트를 AI 코딩 도구에 입력합니다.
-5. AI가 `solution/`에 만든 프로젝트의 **TODO 구현은 직접 진행**합니다.
+1. GitHub에서 **Use this template → Create a new repository**를 선택해 자신의 저장소를 만든 후 Clone합니다.
+2. Starter 루트에서 `python --version`과 `node --version`을 확인합니다. Python 3.12는 Runner와 참가자 코드에, Node.js 22 이상은 공통 검증기와 로컬 플랫폼에 사용합니다. Python Runner는 표준 라이브러리를 사용합니다.
+3. `solution/`의 풀링과 시나리오 TODO를 읽고 구현합니다. 현재 준비된 참가자 스타터는 Python용입니다. 다른 언어의 Runner와 스타터는 향후 지원 대상입니다.
 
-### AI에게 입력할 시작 프롬프트
+## 2. 공통 검증과 Python 데모
 
-```text
-이 저장소는 Galaxy Expansion의 참가자용 스타터 템플릿입니다.
-먼저 README.md, AGENTS.md, docs/ASSIGNMENT.md, docs/PROTOCOL.md,
-docs/AI_WORKFLOW.md를 읽고 요구사항과 검증 기준을 파악하십시오.
+아래 명령은 Starter 루트에서 실행합니다.
 
-개발 언어: [여기에 언어 입력]
-
-1. 먼저 이 언어의 추천 구조, 객체의 소유권/생명주기 설계,
-   Object Pool 자료구조 선택지를 간결하게 설명하십시오.
-2. solution/ 디렉터리 아래에 해당 언어로 실행 가능한 프로젝트 뼈대를 만드십시오.
-3. CosmicObject 데이터 모델, ObjectPool의 Acquire/Release 인터페이스,
-   JSONL stdin/stdout 어댑터, 빌드 및 실행 명령, 언어별 단위 테스트를 구성하십시오.
-4. 참가자가 직접 공부해야 할 Object Pool 핵심 로직은 TODO로 남기고,
-   필요한 작업을 구체적으로 설명하십시오. 정답 전체를 미리 작성하지 마십시오.
-5. 기존 docs/PROTOCOL.md와 contracts/ 및 scripts/의 검증 규칙을
-   임의 변경하거나 테스트를 우회하지 마십시오.
-6. 완성 후 node scripts/verify-protocol.mjs -- <실행 명령> 으로
-   검증할 수 있도록 하고, 언어별 GitHub Actions 작업을 추가하십시오.
-7. 무엇이 완료됐고 무엇이 TODO인지 명확히 보고하십시오.
-```
-
-**AI 지원 원칙:** AI로 문법, 빌드 설정, 테스트, 코드 리뷰를 도움받아도 됩니다. 단, `Acquire`/`Release` 구현 방식과 재사용이 실제로 일어난다는 근거는 참가자가 설명할 수 있어야 합니다.
-
-## 2. 공통 계약 테스트
-
-Node.js **22 이상**이 필요합니다. 이는 언어별 프로젝트의 런타임이 아니라 **공통 검증기 실행 환경**입니다.
-
-```bash
-node --version
+```sh
 npm test
 npm run verify:fixture
+node scripts/verify-protocol.mjs -- python -m framework.adapters.python --module tests.fixtures.python_runner_demo
 ```
 
-- `npm test`: 메시지 검증기 자체를 검사합니다.
-- `npm run verify:fixture`: 올바른 JSONL 이벤트 예제가 현재 프로토콜에 맞는지 검사합니다.
-- **이 두 명령은 참가자 Object Pool 구현의 완성 여부를 검증하지 않습니다.**
+첫 두 명령은 공통 검증기 자체와 JSONL 예제 파일을 검사합니다. 세 번째 명령은 동봉된 데모로 Runner가 실제 실행 과정에서 프로토콜을 지키는지 확인합니다. 데모는 참가자 TODO를 완성하기 전에도 실행할 수 있습니다.
 
-AI가 만든 실행 프로젝트의 통신 테스트는 아래처럼 실행하십시오(언어에 맞춰 변경).
+Windows PowerShell에서 실행 정책 때문에 `npm.ps1`이 차단되면 `npm.cmd test`처럼 `npm` 대신 `npm.cmd`를 사용하세요. 플랫폼 명령에도 같은 방법을 적용할 수 있습니다.
 
-```bash
-node scripts/verify-protocol.mjs -- python solution/main.py
-# 또는
-node scripts/verify-protocol.mjs -- java -cp solution/out Main
-# 또는
-node scripts/verify-protocol.mjs -- ./solution/build/galaxy
+참가자 코드의 풀과 시나리오를 완성하면 다음 명령으로 검증합니다. 어댑터에서 `--module`을 생략하면 `solution.main`을 읽습니다.
+
+```sh
+node scripts/verify-protocol.mjs -- python -m framework.adapters.python --module solution.main
 ```
 
-`--` 뒤에는 **빌드된 실행 프로그램을 실행하는 명령**을 입력합니다. 자동으로 모든 언어를 컴파일해 주지는 않습니다. 검증기는 자식 프로세스에 `init` 메시지를 보내고, JSONL stdout의 `acquire`/`release`/`reset`을 검사하며 `ack`를 반환합니다. 종료 시에는 최소 1회 이상의 **반환 후 재사용 사이클**을 확인합니다. 자세한 검증 범위는 [과제 명세](docs/ASSIGNMENT.md)를 참고하십시오.
+검증기는 `init`을 보낸 뒤 이벤트마다 `ack`를 반환하고, 같은 슬롯이 반환 후 다음 세대로 재사용되는 시퀀스를 확인합니다. 실제 Python 객체의 동일성과 필드 재초기화는 참가자 단위 테스트에서 확인합니다. 테스트 방법은 [Python 구현 안내](solution/README.md)를 참고하세요.
 
-## 3. 첫 번째 구현 목표
+## 3. Relay와 WebGL에서 시연하기
 
-`CosmicObject`는 이름, 타입, 색상, 크기를 가집니다.
+[Galaxy-Expansion](https://github.com/SSAFY-16-GUMI-5/Galaxy-Expansion)을 별도로 Clone합니다. 아래 예시는 Starter와 플랫폼을 같은 상위 폴더에 둔 경우입니다.
 
-- `Acquire(...)`: 사용 가능한 기존 객체를 우선 재사용하거나, 필요하다면 새로운 슬롯을 확보합니다.
-- `Release(object)`: 객체를 비활성화하고 풀에 반환합니다.
-- 재사용 시 **같은 풀 슬롯 식별자**를 유지하고 `generation`을 1 증가시킵니다.
-- 내부에서 실제 **동일 인스턴스/저장 공간**을 재사용했는지는 해당 언어의 단위 테스트로 입증합니다.
-- `name` 1~40자, `type`: `seed`/`star`/`planet`, `color`: `#RRGGBB`, `size`: `0.3`~`3.5`를 준수합니다.
+1. **터미널 A**에서 플랫폼 루트로 이동해 처음 한 번 `npm install`을 실행하고 `npm run relay`를 시작합니다.
+2. **터미널 B**에서 플랫폼 루트로 이동해 `npm run dev`를 시작합니다.
+3. 브라우저에서 `http://localhost:4173`을 열고 `ws://127.0.0.1:8787/ws`로 **CONNECT**합니다.
+4. **터미널 C**는 **Starter 루트**에서 엽니다. Bridge는 플랫폼의 스크립트 경로로 실행합니다. 두 저장소 위치가 다르면 해당 스크립트의 절대 경로를 전달하세요. Bridge가 Starter를 작업 디렉터리로 상속한 Python을 시작하므로 Runner와 참가자 모듈을 가져올 수 있습니다.
 
-```json
-{"type":"acquire","poolSlotId":"7","generation":1,"data":{"name":"Aurora","type":"star","color":"#5dcaff","size":1.2}}
-```
-
-**중요:** `stdout`은 한 줄에 JSON 하나만 출력합니다. 디버그 로그는 반드시 `stderr`로 보냅니다. `participantId`는 브리지가 인증 정보를 바탕으로 서버에 부여하므로 출력 메시지에 넣지 않습니다.
-
-## 4. 로컬 웹 시각화 연동
-
-현재 GitHub Pages의 공개 화면은 **정적 웹 프론트엔드**입니다. 참가자의 로컬 객체를 전송하려면 [Galaxy-Expansion 플랫폼](https://github.com/SSAFY-16-GUMI-5/Galaxy-Expansion)의 Local Bridge와 WebSocket Relay가 필요합니다.
-
-Windows PowerShell에서 플랫폼 저장소를 별도로 Clone한 뒤:
+**Windows PowerShell**
 
 ```powershell
-# 터미널 A: 웹 화면
-cd Galaxy-Expansion
-npm run dev
-
-# 터미널 B: Relay (최초 1회 npm install 필요)
-cd Galaxy-Expansion
-npm install
-npm run relay
-
-# 터미널 C: 참가자 프로그램 (예시: Python)
-cd Galaxy-Expansion
 $env:GALAXY_PARTICIPANT_ID = "my_unique_id"
 $env:GALAXY_TOKEN = "local-demo-token"
-node bridge/local-bridge.mjs -- python ../Galaxy-Expansion-Starter/solution/main.py
+$env:GALAXY_WS = "ws://127.0.0.1:8787/ws"
+$env:GALAXY_TEST_PRESENTATION_DELAY = "1"
+node ../Galaxy-Expansion/bridge/local-bridge.mjs -- python -m framework.adapters.python --module tests.fixtures.python_runner_demo
 ```
 
-브라우저에서 `http://localhost:4173`을 열고 `ws://127.0.0.1:8787/ws`로 CONNECT하면 로컬 연동을 시험할 수 있습니다. 위 경로는 **두 저장소를 같은 상위 폴더에 Clone한 경우**의 예시입니다.
+**POSIX 셸**
 
-> **주의:** HTTPS로 제공되는 GitHub Pages에서는 로컬 개발용 `ws://` 연결을 사용할 수 없습니다. 공개 사이트와 외부 참가자를 연동하려면 별도 서버에서 유효한 TLS를 사용하는 `wss://` 엔드포인트가 필요합니다. 로컬 토큰은 인터넷 서버에 사용하지 마십시오.
+```sh
+GALAXY_PARTICIPANT_ID=my_unique_id GALAXY_TOKEN=local-demo-token \
+  GALAXY_WS=ws://127.0.0.1:8787/ws GALAXY_TEST_PRESENTATION_DELAY=1 \
+  node ../Galaxy-Expansion/bridge/local-bridge.mjs -- python -m framework.adapters.python --module tests.fixtures.python_runner_demo
+```
 
-## 5. 제출 및 발표
+`GALAXY_TEST_PRESENTATION_DELAY`는 데모의 변화를 화면에서 보기 위한 선택 설정이며 단위는 초입니다. 데모에서는 활성 객체 수가 1 → 10 → 9 → 10으로 바뀝니다. 마지막 단계에서 반환했던 슬롯이 새 이름과 색상으로 다시 표시됩니다. 참가자 구현을 완성한 뒤에는 명령의 모듈 이름을 `solution.main`으로 바꿔 실행합니다. Bridge의 `[bridge] program exited: 0` 로그와 WebGL 화면에서 시연 결과를 확인하세요.
 
-- 참가자의 `solution/` 코드와 실행 방법
-- `Acquire`/`Release`의 설계 선택 및 메모리 재사용을 입증한 테스트
-- JSONL 프로토콜 검증 결과
-- 학습 기록: 선택한 자료구조, 고려한 대안, 어려웠던 점, 개선 아이디어
-- 가능하면 WebGL 화면에서 자신의 별을 시연
+처음 실행할 때는 새 참가자 ID를 사용하세요. Relay는 연결이 끊겨도 참가자의 슬롯 상태를 유지합니다. 같은 ID로 다시 실행할 때 이전 상태를 지워도 된다면 Python 어댑터 인수 끝에 `--reset-on-start`를 추가하세요. 참가자 상태를 지운 뒤 슬롯과 세대가 새로 시작합니다. 이전 상태를 유지하려면 새 참가자 ID로 실행하세요.
 
-> **저장소 운영자:** 이 저장소를 GitHub `Settings → General → Template repository`로 설정하십시오. 템플릿에서 만든 참가자 저장소는 추후 원본 수정 사항을 자동으로 동기화하지 않습니다. 프로토콜 버전과 변경 이력을 관리하십시오.
+`local-demo-token`은 로컬 Relay용입니다. 공개 HTTPS 화면을 외부 Relay에 연결하려면 TLS가 적용된 `wss://` 엔드포인트가 필요합니다. 원격 토큰은 Git이나 브라우저 코드에 넣지 마세요.
+
+## 4. 제출 및 발표
+
+- `solution/` 코드와 실행 방법
+- 풀 자료구조와 생명주기 설계, 실제 객체 재사용과 재초기화를 입증한 테스트
+- 참가자 시나리오의 공통 검증 결과와 가능하면 WebGL 시연
+
+> 저장소 운영자는 GitHub의 **Settings → General → Template repository**에서 이 저장소를 템플릿으로 설정할 수 있습니다.
