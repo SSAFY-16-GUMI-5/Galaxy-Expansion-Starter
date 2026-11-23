@@ -25,9 +25,9 @@ The public API and wire behavior are specified in [Runner contract](RUNNER_CONTR
 
 Each tracked operation invokes a real domain operation. Acquire observes the returned storage identity and captures a value snapshot of the initialized object. Release uses the exact storage borrowed by the current lease. The Runner derives slot and generation from those observations. There is no public event-emission method and a scenario supplies neither slot IDs nor generations.
 
-The Runner gives each newly observed storage identity a session-local slot ID. It keeps an identity record for inactive slots as well as active slots. In Python the borrow result must be the actual `CosmicObject` instance. Compare by `is` and retain a strong reference per known slot for the run so a recycled `id()` cannot be mistaken for reuse. A new wrapper or equal-valued object has a different Python identity. Future language ports may bind the identity to a stable storage token if their borrow handles are transient. The adapter must be able to relate that token to actual storage within the run.
+The Runner gives each newly observed storage identity a session-local slot ID. It keeps an identity record for inactive slots as well as active slots. Python, Java, and C# key on reference identity. C++ keys on stable storage addresses. Rust binds a borrow handle to a stable storage token that identifies an actual pool slot. Each adapter distinguishes storage identity from the identity of an individual borrow.
 
-The underlying storage identity and the lease identity have different lifetimes. A new lease is issued each time an object is acquired. A return invalidates that lease even if the same object is active again under a new lease. The Python scenario sees an opaque lease and immutable snapshots. The participant still tests its pool directly by comparing storage identity, checking reinitialization and exercising its own misuse handling.
+The underlying storage identity and the lease identity have different lifetimes. A new lease is issued each time an object is acquired. A return invalidates that lease even if the same object is active again under a new lease. The scenario receives an opaque lease and immutable snapshots. The participant still tests its pool directly by comparing storage identity, checking reinitialization and exercising its own misuse handling.
 
 Run one fresh pool and one scenario serially per process invocation. The scenario uses the tracked API for all pool operations. The pool and scenario are trusted local code. The Runner provides lifecycle checks at its API boundary, while in-process code has the permissions of the local Runner process. The only objects sent across the transport are v1 JSON data.
 
@@ -47,10 +47,10 @@ A scenario may finish with active display objects. Successful termination waits 
 
 ## Compatibility and implementation order
 
-Existing v1 participant executables continue to run directly under the verifier or Bridge. The Runner is an optional local entry point, with no dependency on a modified platform. Python comes first using standard-library process I/O and tests. The language-neutral contract is a synchronous domain adapter, a lease API and a finite scenario with the same v1 transport. Other languages can use native ownership mechanisms and make equivalent identity observations.
+Existing v1 participant executables continue to run directly under the verifier or Bridge. The Runner is an optional local entry point. Python, C++, Java, C#, and Rust implement the same synchronous domain adapter, lease lifecycle and finite scenario model using their native ownership mechanisms. Build and launch commands are in the [language guide](LANGUAGE_GUIDE.md).
 
 1. Build the tracked API and test it against a single-storage test double. Keep participants' pool implementations in their solutions.
 2. Implement the stdin/stdout adapter and exercise success, rejection, stalled replies and exit using subprocess fixtures.
-3. Run the unchanged Starter verifier against a finite Runner scenario that acquires, releases and re-acquires the same storage, then run the scenario with the existing Local Bridge against a local Relay and confirm the viewer or Relay snapshot.
+3. Run the unchanged Starter verifier against a finite Runner scenario that acquires, releases and re-acquires the same storage. Then run the scenario through the Local Bridge and a local Relay to confirm the viewer state.
 
 The verifier exercises ordering, validation and transcript reuse. Language-level tests establish actual storage reuse and reinitialization. The Bridge smoke test adds authentication, Relay state and the final acknowledgment path.

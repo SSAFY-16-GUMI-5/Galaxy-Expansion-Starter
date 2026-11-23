@@ -1,6 +1,14 @@
 # 언어 가이드
 
-현재 제공하는 참가자 스타터와 Runner는 **Python용**입니다. Python 3으로 참가자 코드와 테스트를 실행하고, Node.js 22 이상으로 공통 검증기와 로컬 플랫폼을 실행합니다. Runner는 Python 표준 라이브러리를 사용합니다.
+한 가지 언어를 골라 해당 안내의 데모, 빌드, 테스트 명령을 실행합니다. Node.js 22 이상은 공통 검증기와 로컬 플랫폼에 사용합니다.
+
+| 언어 | 개발 도구 | 저장 공간 재사용을 확인하는 방법 |
+| --- | --- | --- |
+| [Python](../solution/README.md) | Python 3.12 | 객체를 `is`로 비교 |
+| [C++](../solution/cpp/README.md) | C++20 컴파일러, CMake | 수명이 유지되는 저장 공간의 주소 비교 |
+| [Java](../solution/java/README.md) | JDK 21 | 인스턴스 참조를 `==`로 비교 |
+| [C#](../solution/csharp/README.md) | .NET 8 SDK | 인스턴스 참조를 `ReferenceEquals`로 비교 |
+| [Rust](../solution/rust/README.md) | stable Rust, Cargo | 재대여한 핸들이 같은 저장 공간을 가리키는지 확인 |
 
 ## Python에서 시작하기
 
@@ -14,6 +22,4 @@ node scripts/verify-protocol.mjs -- python -m framework.adapters.python --module
 
 참가자는 JSON 직렬화와 stdin/stdout 처리를 작성할 필요가 없습니다. Python Runner가 [프로토콜 v1](PROTOCOL.md)의 입출력을 처리합니다. 로컬 Relay와 화면을 연결하는 절차는 [저장소 README](../README.md#3-relay와-webgl에서-시연하기)에 있습니다.
 
-## 향후 언어 지원
-
-다른 언어의 참가자 스타터와 Runner는 향후 지원 대상입니다. 언어별 구현이 추가될 때에도 [프로토콜 v1](PROTOCOL.md)은 공통 계약으로 사용합니다. 각 언어의 테스트는 객체나 저장 공간의 동일성을 해당 언어의 수명과 소유권 모델에 맞춰 검증해야 합니다.
+모든 Runner는 [프로토콜 v1](PROTOCOL.md)을 사용합니다. 참가자 시나리오는 언어별 컨텍스트를 통해 풀을 호출하고, 실제 객체나 저장 공간의 재사용은 언어별 테스트로 확인합니다.

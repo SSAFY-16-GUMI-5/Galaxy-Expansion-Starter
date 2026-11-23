@@ -2,7 +2,7 @@
 
 > SSAFY 16기 구미 5반 · PROJECT 01 · Object Pooling
 
-객체를 확보하고 반환한 뒤 같은 인스턴스를 재사용하는 Python 프로젝트입니다. 참가자는 `solution/`의 객체 풀과 시나리오를 완성합니다. Runner가 실제 객체의 확보·반환을 추적하고 프로토콜 v1 이벤트를 보내면 WebGL 화면에서 결과를 볼 수 있습니다.
+Python, C++, Java, C#, Rust 중 하나를 골라 객체를 확보하고 반환한 뒤 같은 인스턴스나 저장 공간을 재사용합니다. 참가자는 `solution/`의 객체 풀과 시나리오를 완성합니다. Runner가 확보·반환을 추적하며, 기존 Bridge와 Relay를 통해 결과가 WebGL 화면에 표시됩니다.
 
 - [과제 명세](docs/ASSIGNMENT.md) · [Python 구현 안내](solution/README.md) · [AI 개발 절차](docs/AI_WORKFLOW.md)
 - [프로토콜 v1](docs/PROTOCOL.md) · [언어 가이드](docs/LANGUAGE_GUIDE.md)
@@ -11,10 +11,12 @@
 ## 1. 시작하기
 
 1. GitHub에서 **Use this template → Create a new repository**를 선택해 자신의 저장소를 만든 후 Clone합니다.
-2. Starter 루트에서 `python --version`과 `node --version`을 확인합니다. Python 3.12는 Runner와 참가자 코드에, Node.js 22 이상은 공통 검증기와 로컬 플랫폼에 사용합니다. Python Runner는 표준 라이브러리를 사용합니다.
-3. `solution/`의 풀링과 시나리오 TODO를 읽고 구현합니다. 현재 준비된 참가자 스타터는 Python용입니다. 다른 언어의 Runner와 스타터는 향후 지원 대상입니다.
+2. [언어 가이드](docs/LANGUAGE_GUIDE.md)에서 스타터를 고르고 해당 도구와 Node.js 22 이상을 설치합니다.
+3. 언어별 안내에 따라 데모와 테스트를 먼저 실행한 뒤 `solution/`의 풀링과 시나리오 TODO를 구현합니다.
 
 ## 2. 공통 검증과 Python 데모
+
+아래는 Python 3.12 기준입니다. 다른 언어의 빌드, 테스트, 검증 명령은 [언어 가이드](docs/LANGUAGE_GUIDE.md)에 있습니다.
 
 아래 명령은 Starter 루트에서 실행합니다.
 
@@ -39,6 +41,8 @@ node scripts/verify-protocol.mjs -- python -m framework.adapters.python --module
 ## 3. Relay와 WebGL에서 시연하기
 
 [Galaxy-Expansion](https://github.com/SSAFY-16-GUMI-5/Galaxy-Expansion)을 별도로 Clone합니다. 아래 예시는 Starter와 플랫폼을 같은 상위 폴더에 둔 경우입니다.
+
+Bridge 뒤에 전달할 C++·Java·C#·Rust 실행 명령은 [언어 가이드](docs/LANGUAGE_GUIDE.md)의 각 스타터에 있습니다.
 
 1. **터미널 A**에서 플랫폼 루트로 이동해 처음 한 번 `npm install`을 실행하고 `npm run relay`를 시작합니다.
 2. **터미널 B**에서 플랫폼 루트로 이동해 `npm run dev`를 시작합니다.

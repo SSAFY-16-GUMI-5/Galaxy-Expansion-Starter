@@ -19,7 +19,7 @@ node scripts/verify-protocol.mjs -- dotnet tests/csharp/bin/Release/net8.0/Galax
 
 1. [Program.cs](Program.cs)의 `CosmicObject`에 표시 필드와 필요한 상태를 추가합니다. `Snapshot()`은 현재 필드로 불변 `CosmicSpec` 값을 만들어 반환합니다.
 2. `ObjectPool`에서 사용 가능한 저장 인스턴스와 대여 중인 인스턴스를 관리합니다. 고정 또는 가변 용량을 고르고 용량 한도를 만났을 때의 동작을 정하세요. `Acquire`에서 이름, 종류, 색상, 크기와 나머지 재사용 상태를 초기화합니다. `Release`에서는 다른 풀의 객체나 이미 반환한 객체를 거부합니다. 실패한 풀 연산은 기존 상태를 유지해야 합니다.
-3. `RunScenario`에서 `context.Acquire(spec)`, `context.Snapshot(lease)`, `context.Release(lease)`를 사용합니다. 반환한 저장 인스턴스를 다시 빌리는 순서를 포함하고 시나리오를 유한하게 유지하세요. 각 TODO를 완료하면서 해당 `#error`와 `NotImplementedException`을 제거합니다. 스타터 빌드는 이 작업이 끝나기 전까지 의도적으로 실패합니다.
+3. `RunScenario`에서 `context.Acquire(spec)`, `context.Snapshot(lease)`, `context.Release(lease)`를 사용합니다. 반환한 저장 인스턴스를 다시 빌리는 순서를 포함하고 시나리오를 유한하게 유지하세요. 각 TODO를 완료하면서 해당 `NotImplementedException`을 구현으로 교체합니다. 완성 전에는 데모로 Runner를 검증할 수 있습니다.
 4. 직접 만든 풀에 대해 `ReferenceEquals`, 재초기화, 중복 반환, 외부 참조, 용량 한도를 테스트한 뒤 참가자 시나리오를 검증합니다.
 
 ```sh

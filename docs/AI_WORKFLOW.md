@@ -5,8 +5,8 @@ AI로 설계 비교, 테스트 작성과 코드 리뷰의 도움을 받을 수 �
 ## 1. 풀 설계 비교
 
 ```text
-AGENTS.md와 docs/ASSIGNMENT.md, solution/README.md를 읽어 주세요.
-현재 Python 스타터에서 사용 가능한 객체를 저장하는 자료구조와 용량 정책을 비교해 주세요.
+AGENTS.md와 docs/ASSIGNMENT.md, docs/LANGUAGE_GUIDE.md를 읽어 주세요.
+내가 선택한 언어는 [언어]입니다. 해당 스타터에서 사용 가능한 객체를 저장하는 자료구조와 용량 정책을 비교해 주세요.
 객체의 소유권, 중복 반환, 반환 후 참조 사용에서 주의할 점을 설명해 주세요.
 완성된 풀 구현은 작성하지 말아 주세요.
 ```
@@ -17,7 +17,7 @@ AGENTS.md와 docs/ASSIGNMENT.md, solution/README.md를 읽어 주세요.
 
 ```text
 solution/의 기존 인터페이스를 바탕으로 TODO별 완료 조건을 설명해 주세요.
-같은 인스턴스의 재사용을 is로 확인하고 네 필드의 재초기화까지 검사하는 테스트를 제안해 주세요.
+선택한 언어에서 같은 인스턴스나 저장 공간의 재사용을 확인하고 네 필드의 재초기화까지 검사하는 테스트를 제안해 주세요.
 ```
 
 ## 3. 리뷰와 검증
@@ -25,8 +25,7 @@ solution/의 기존 인터페이스를 바탕으로 TODO별 완료 조건을 설
 ```text
 내 풀과 시나리오를 리뷰해 주세요.
 중복 반환, 잘못된 참조, 재초기화 누락, 활성 객체 중복 대여를 확인해 주세요.
-내 단위 테스트와 아래 공통 검증 명령을 Starter 루트에서 실행하고 실제 결과를 알려 주세요.
-node scripts/verify-protocol.mjs -- python -m framework.adapters.python --module solution.main
+내 단위 테스트와 언어별 안내의 공통 검증 명령을 Starter 루트에서 실행하고 실제 결과를 알려 주세요.
 ```
 
-`solution.main` 검증은 풀과 시나리오가 완성된 뒤 실행합니다. 그 전에는 [저장소 README](../README.md)의 Python 데모 명령으로 Runner를 확인할 수 있습니다. `docs/PROTOCOL.md`, `contracts/`, `scripts/`, 기존 `.github/workflows/verify.yml`은 그대로 사용합니다.
+풀과 시나리오가 완성되기 전에는 [언어별 데모](LANGUAGE_GUIDE.md)로 Runner를 확인할 수 있습니다. `docs/PROTOCOL.md`, `contracts/`, `scripts/`, 기존 `.github/workflows/verify.yml`은 그대로 사용합니다.

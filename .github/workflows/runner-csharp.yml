@@ -35,6 +35,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: dotnet build solution/csharp/Galaxy.Solution.csproj -c Release
       - run: dotnet build tests/csharp/Galaxy.Runner.Tests.csproj -c Release
       - run: dotnet tests/csharp/bin/Release/net8.0/Galaxy.Runner.Tests.dll --test
       - run: node scripts/verify-protocol.mjs -- dotnet tests/csharp/bin/Release/net8.0/Galaxy.Runner.Tests.dll
