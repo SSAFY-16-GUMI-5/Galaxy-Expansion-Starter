@@ -1,0 +1,31 @@
+name: Validate Python Runner
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python-runner:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run Python tests
+        run: python -m unittest discover -s tests -v
+      - name: Verify Python Runner fixture
+        run: node scripts/verify-protocol.mjs -- python -m framework.adapters.python --module tests.fixtures.python_runner_demo
+      - name: Verify Python Runner fixture with startup reset
+        run: node scripts/verify-protocol.mjs -- python -m framework.adapters.python --module tests.fixtures.python_runner_demo --reset-on-start

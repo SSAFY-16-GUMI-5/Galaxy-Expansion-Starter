@@ -1,0 +1,51 @@
+name: C++ Runner
+
+on:
+  push:
+    paths:
+      - 'framework/adapters/cpp/**'
+      - 'solution/cpp/**'
+      - 'tests/cpp/**'
+      - '.github/workflows/runner-cpp.yml'
+      - 'scripts/**'
+      - 'contracts/**'
+  pull_request:
+    paths:
+      - 'framework/adapters/cpp/**'
+      - 'solution/cpp/**'
+      - 'tests/cpp/**'
+      - '.github/workflows/runner-cpp.yml'
+      - 'scripts/**'
+      - 'contracts/**'
+
+jobs:
+  verify-cpp:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            configure: -DCMAKE_CXX_COMPILER=g++
+            demo: ./build/cpp/galaxy-cpp-demo
+          - os: ubuntu-latest
+            configure: -DCMAKE_CXX_COMPILER=clang++
+            demo: ./build/cpp/galaxy-cpp-demo
+          - os: windows-2022
+            configure: -G "Visual Studio 17 2022" -A x64
+            demo: ./build/cpp/Release/galaxy-cpp-demo.exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Configure
+        run: cmake -S framework/adapters/cpp -B build/cpp -DCMAKE_BUILD_TYPE=Release ${{ matrix.configure }}
+      - name: Build
+        run: cmake --build build/cpp --config Release --parallel
+      - name: Native and subprocess tests
+        run: ctest --test-dir build/cpp -C Release --output-on-failure
+      - name: Verify v1 demo
+        run: node scripts/verify-protocol.mjs -- "${{ matrix.demo }}"
+      - name: Verify startup reset
+        run: node scripts/verify-protocol.mjs -- "${{ matrix.demo }}" --reset-on-start

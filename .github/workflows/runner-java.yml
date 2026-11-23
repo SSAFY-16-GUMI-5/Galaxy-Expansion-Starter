@@ -1,0 +1,47 @@
+name: Validate Java Runner
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  java-runner:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build Java Runner, starter and tests
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force build/java | Out-Null
+          $jar = 'build/java/gson-2.13.2.jar'
+          Invoke-WebRequest 'https://repo.maven.apache.org/maven2/com/google/code/gson/gson/2.13.2/gson-2.13.2.jar' -OutFile $jar
+          $sources = (Get-ChildItem framework/adapters/java,solution/java,tests/java,tests/fixtures/java -Filter *.java).FullName
+          javac --release 21 -encoding UTF-8 -cp $jar -d build/java $sources
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "GALAXY_JAVA_CLASSPATH=build/java$([IO.Path]::PathSeparator)$jar" >> $env:GITHUB_ENV
+      - name: Run Java identity and lifecycle tests
+        run: java -cp "$env:GALAXY_JAVA_CLASSPATH" galaxy.runner.RunnerTests
+        shell: pwsh
+      - name: Test Runner subprocess transport
+        run: node --test tests/java/transport.test.mjs
+      - name: Verify Java fixture
+        run: node scripts/verify-protocol.mjs -- java -cp "$env:GALAXY_JAVA_CLASSPATH" galaxy.fixture.Demo
+        shell: pwsh
+      - name: Verify Java fixture with startup reset
+        run: node scripts/verify-protocol.mjs -- java -cp "$env:GALAXY_JAVA_CLASSPATH" galaxy.fixture.Demo --reset-on-start
+        shell: pwsh
