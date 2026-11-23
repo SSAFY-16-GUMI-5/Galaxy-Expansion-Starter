@@ -1,0 +1,41 @@
+name: C# Runner
+
+on:
+  push:
+    paths:
+      - '.github/workflows/runner-csharp.yml'
+      - 'framework/adapters/csharp/**'
+      - 'solution/csharp/**'
+      - 'tests/csharp/**'
+      - 'scripts/protocol.mjs'
+      - 'scripts/verify-protocol.mjs'
+  pull_request:
+    paths:
+      - '.github/workflows/runner-csharp.yml'
+      - 'framework/adapters/csharp/**'
+      - 'solution/csharp/**'
+      - 'tests/csharp/**'
+      - 'scripts/protocol.mjs'
+      - 'scripts/verify-protocol.mjs'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: dotnet build tests/csharp/Galaxy.Runner.Tests.csproj -c Release
+      - run: dotnet tests/csharp/bin/Release/net8.0/Galaxy.Runner.Tests.dll --test
+      - run: node scripts/verify-protocol.mjs -- dotnet tests/csharp/bin/Release/net8.0/Galaxy.Runner.Tests.dll
+      - run: node scripts/verify-protocol.mjs -- dotnet tests/csharp/bin/Release/net8.0/Galaxy.Runner.Tests.dll --reset-on-start
