@@ -29,14 +29,18 @@ docs/AI_WORKFLOW.md를 읽고 요구사항과 검증 기준을 파악하십시�
    Object Pool 자료구조 선택지를 간결하게 설명하십시오.
 2. solution/ 디렉터리 아래에 해당 언어로 실행 가능한 프로젝트 뼈대를 만드십시오.
 3. CosmicObject 데이터 모델, ObjectPool의 Acquire/Release 인터페이스,
-   JSONL stdin/stdout 어댑터, 빌드 및 실행 명령, 언어별 단위 테스트를 구성하십시오.
+   JSONL stdin/stdout 어댑터, 빌드 및 실행 명령을 구성하십시오.
+   solution/에 실제로 실행할 수 있는 단위 테스트를 작성하십시오.
+   동일 인스턴스 재사용, 재획득 시 속성 초기화, 중복 반환 후 풀 상태를 검사하십시오.
 4. 참가자가 직접 공부해야 할 Object Pool 핵심 로직은 TODO로 남기고,
    필요한 작업을 구체적으로 설명하십시오. 정답 전체를 미리 작성하지 마십시오.
 5. 기존 docs/PROTOCOL.md와 contracts/ 및 scripts/의 검증 규칙을
    임의 변경하거나 테스트를 우회하지 마십시오.
-6. 완성 후 node scripts/verify-protocol.mjs -- <실행 명령> 으로
-   검증할 수 있도록 하고, 언어별 GitHub Actions 작업을 추가하십시오.
-7. 무엇이 완료됐고 무엇이 TODO인지 명확히 보고하십시오.
+6. .github/workflows/solution-<lang>.yml에서 PR마다 필요한 빌드,
+   언어별 단위 테스트, node scripts/verify-protocol.mjs -- <실행 명령>을
+   실행하십시오. 중계 서버나 토큰은 필요하지 않습니다.
+7. solution/README.md에 로컬 검증 명령을 기록하고, 결과를
+   통과, 실패(구현 TODO 포함), 미실행으로 구분해 보고하십시오.
 ```
 
 **AI 지원 원칙:** AI로 문법, 빌드 설정, 테스트, 코드 리뷰를 도움받아도 됩니다. 단, `Acquire`/`Release` 구현 방식과 재사용이 실제로 일어난다는 근거는 참가자가 설명할 수 있어야 합니다.
